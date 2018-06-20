@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "jasmine": "^3.1.0",
+    "lame": "^1.2.4",
     "mocha": "^5.2.0",
     "speaker": "^0.4.1"
   },

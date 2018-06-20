@@ -1,5 +1,6 @@
 const assert = require('assert');
 const Player = require('../src/Player');
+const path = require('path');
 
 describe('Player', function () {
   
@@ -8,21 +9,16 @@ describe('Player', function () {
       const player = new Player();
       assert.notEqual(player, undefined);
     });
-    
-    it('should auto instantiate a Speaker instance', function () {
-      const player = new Player();
-      assert.notEqual(player._speaker, undefined);
-    });
   });
   
-  describe('Loading audio from a file', function (done) {
+  describe('Loading audio from a file', function () {
     it('should load audio from a relative file path', function () {
       const player = new Player();
-      const file = './test.mp3';
-      return player.load(file).then(function (result) {
-        assert.ok(result);
-        done();
-      });
+      const file = path.join(__dirname, 'test.mp3');
+      player.load(file);
+      assert.notEqual(player._decoder, undefined);
+      assert.notEqual(player._speaker, undefined);
+      assert.notEqual(player._stream, undefined);
     });
   });
   
@@ -31,13 +27,19 @@ describe('Player', function () {
     
     beforeEach(function () {
       player = new Player();
-      const file = './test.mp3';
+      const file = path.join(__dirname, 'test.mp3');
       return player.load(file);
     });
     
-    it('should begin playback', function () {
+    it('should begin playback', function (done) {
       player.play();
       assert.equal(player.isPlaying(), true);
+      // pause playback after some delay
+      this.timeout(6000);
+      setTimeout(function () {
+        player.pause();
+        done();
+      }, 5000);
     });
   
     it('should pause playback', function () {
@@ -46,15 +48,15 @@ describe('Player', function () {
     });
     
     it('should return the current audio file', function () {
-      assert.equal(player.getCurrentAudioFile(), null);
+      assert.equal(player.getCurrentAudioStream(), player._stream);
     });
   
     it('should clear the current audio file', function () {
       player.reset();
       assert.equal(player.isPlaying(), false);
-      assert.equal(player.getCurrentAudioFile(), null);
+      assert.equal(player.getCurrentAudioStream(), null);
+      assert.equal(player.getCurrentDecoder(), null);
+      assert.equal(player.getCurrentSpeaker(), null);
     });
-    
   });
-  
 });
